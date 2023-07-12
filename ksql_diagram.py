@@ -224,4 +224,3 @@ if __name__ == "__main__":
     sys.exit()
 
   draw_diagram(sys.argv[1],sys.argv[2],sys.argv[3])
-  # draw_diagram("ksql-example.sql", "BeazleyPro Policy", "my-diagram")
