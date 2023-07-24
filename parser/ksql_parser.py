@@ -60,7 +60,7 @@ class KSQLParser:
       elif re.search(" table ", lowerline) is not None:
         item = KSQLTable(self._extract_name(lowerline, "table"))
       
-      elif (re.search(" key ", lowerline) is not None) \
+      elif (re.search(" key", lowerline) is not None) \
         and (re.search("key_format", lowerline) is not None):
         item.withKey(self._extract_key(lowerline))
       
@@ -167,6 +167,7 @@ class KSQLParser:
       for item in orderItems:
         # tables
         if isinstance(item, KSQLTable):
+          print(item)
         
           if (item.key == ""):
             draw_objects[item.name] = Node(label=self.multilines(item.name), height="0.6", \
