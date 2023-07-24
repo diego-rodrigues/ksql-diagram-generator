@@ -1,6 +1,7 @@
 
 from parser.ksql_item import KSQLItem, KSQLTable, KSQLStream
 from diagrams import Diagram, Edge, Node
+import re
 
 # Diagram properties
 
@@ -50,38 +51,38 @@ class KSQLParser:
       lowerline = line.lower()
 
       # ignoring INSERT statements
-      if "insert into" in lowerline:
+      if re.search("insert into", lowerline) is not None:
         return None
 
-      if " stream " in lowerline:
+      elif re.search(" stream ", lowerline) is not None:
         item = KSQLStream(self._extract_name(lowerline, "stream"))
       
-      elif " table " in lowerline:
+      elif re.search(" table ", lowerline) is not None:
         item = KSQLTable(self._extract_name(lowerline, "table"))
       
-      elif (" key" in lowerline and "key_format" not in lowerline):
+      elif (re.search(" key ", lowerline) is not None) and (re.search("key_format", lowerline) is not None):
         item.withKey(self._extract_key(lowerline))
       
-      elif ("group by" in lowerline):
+      elif re.search("^group by", lowerline) is not None:
         # treat the case where multiple keys are in the group by clause
         multiline = self._join_multilines(line_no, lines)
         item.withKey(self._extract_from_keyword(multiline.lower(), "group by ", False))
       
-      elif ("partition by" in lowerline):
+      elif re.search("^partition by", lowerline) is not None:
         multiline = self._join_multilines(line_no, lines)
         item.withKey(self._extract_from_keyword(multiline.lower(), "partition by ", False))
       
-      elif "kafka_topic" in lowerline:
+      elif re.search("kafka_topic", lowerline) is not None:
         item.withTopic(self._extract_topic(lowerline))
 
-      elif "from " in lowerline:
+      elif re.search("^from ", lowerline) is not None:
         item.withOrigin(self._extract_from_keyword(lowerline, "from "))
 
-      elif "inner join" in lowerline:
+      elif re.search("^inner join", lowerline) is not None:
         item.withJoin(self._extract_from_keyword(lowerline, "inner join "),"INNER JOIN")
         item.withKey(self.get_item(item.origin).key)
 
-      elif "left join" in lowerline:
+      elif re.search("^left join", lowerline) is not None:
         item.withJoin(self._extract_from_keyword(lowerline, "left join "),"LEFT JOIN")
         item.withKey(self.get_item(item.origin).key)
 
@@ -154,8 +155,7 @@ class KSQLParser:
     inputs = f.read()
 
     self.parseStatements(inputs)
-    # p.print()
-
+    
     items = self.items
     orderItems = self.orderItems
 
@@ -164,7 +164,6 @@ class KSQLParser:
     with Diagram(diagram_name, show=True, filename=output_name, direction="LR", \
                 graph_attr=graph_attr):
       for item in orderItems:
-      
         # tables
         if isinstance(item, KSQLTable):
         
