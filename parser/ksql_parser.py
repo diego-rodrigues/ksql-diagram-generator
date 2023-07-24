@@ -60,7 +60,8 @@ class KSQLParser:
       elif re.search(" table ", lowerline) is not None:
         item = KSQLTable(self._extract_name(lowerline, "table"))
       
-      elif (re.search(" key ", lowerline) is not None) and (re.search("key_format", lowerline) is not None):
+      elif (re.search(" key ", lowerline) is not None) \
+        and (re.search("key_format", lowerline) is not None):
         item.withKey(self._extract_key(lowerline))
       
       elif re.search("^group by", lowerline) is not None:
