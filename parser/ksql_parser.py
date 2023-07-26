@@ -48,7 +48,7 @@ class KSQLParser:
     line_no = 0
 
     for line in lines:
-      lowerline = line.lower()
+      lowerline = line.lower().strip()
 
       # ignoring INSERT statements
       if re.search("insert into", lowerline) is not None:
