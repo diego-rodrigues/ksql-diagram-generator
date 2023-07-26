@@ -123,10 +123,7 @@ class KSQLParser:
 
 
   def _extract_key(self, input: str) -> str:
-    print("----------")
-    print(input)
     linepart = input.strip().split(" ",2)[0].strip()
-    print(f"{linepart} <- {input}")
     return linepart
 
 
