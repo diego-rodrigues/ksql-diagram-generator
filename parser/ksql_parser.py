@@ -48,20 +48,22 @@ class KSQLParser:
     line_no = 0
 
     for line in lines:
-      lowerline = line.lower()
+      lowerline = line.lower().strip()
 
       # ignoring INSERT statements
       if re.search("insert into", lowerline) is not None:
         return None
 
-      elif re.search(" stream ", lowerline) is not None:
+      elif re.search("create", lowerline) is not None \
+        and re.search(" stream ", lowerline) is not None:
         item = KSQLStream(self._extract_name(lowerline, "stream"))
       
-      elif re.search(" table ", lowerline) is not None:
+      elif re.search("create", lowerline) is not None \
+        and re.search(" table ", lowerline) is not None:
         item = KSQLTable(self._extract_name(lowerline, "table"))
       
       elif (re.search(" key", lowerline) is not None) \
-        and (re.search("key_format", lowerline) is not None):
+        and (re.search("key_format", lowerline) is None):
         item.withKey(self._extract_key(lowerline))
       
       elif re.search("^group by", lowerline) is not None:
@@ -180,7 +182,9 @@ class KSQLParser:
             
         # streams
         elif isinstance(item, KSQLStream):
-          draw_objects[item.name] = Node(label=self.multilines(item.name), xlabel=self.multilines(item.key), height="0.6", \
+          print(item)
+
+          draw_objects[item.name] = Node(label=self.multilines(item.name), xlabel=self.multilines(item.key, 30), height="0.6", \
                                         fixedsize="false", labelloc="c", shape="box", \
                                         color="black", style="filled,rounded", fillcolor="lightskyblue")
 
