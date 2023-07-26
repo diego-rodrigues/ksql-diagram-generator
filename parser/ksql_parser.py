@@ -54,10 +54,12 @@ class KSQLParser:
       if re.search("insert into", lowerline) is not None:
         return None
 
-      elif re.search("create", lowerline) and re.search(" stream ", lowerline) is not None:
+      elif re.search("create", lowerline) is not None \
+        and re.search(" stream ", lowerline) is not None:
         item = KSQLStream(self._extract_name(lowerline, "stream"))
       
-      elif re.search("create", lowerline) and re.search(" table ", lowerline) is not None:
+      elif re.search("create", lowerline) is not None \
+        and re.search(" table ", lowerline) is not None:
         item = KSQLTable(self._extract_name(lowerline, "table"))
       
       elif (re.search(" key", lowerline) is not None) \
