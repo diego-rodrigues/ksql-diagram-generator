@@ -30,14 +30,17 @@ class KSQLParser:
     self.orderItems = []
 
   def _join_multilines(self, line_start, lines) -> str:
-    out = lines[line_start] + " "
-    line_start += 1
-    curr_line = lines[line_start]
     max_lines = len(lines)
-    while not(";" in curr_line or "EMIT" in curr_line) and line_start+1 < max_lines:
-      out = out + curr_line.strip()
+    out = lines[line_start] + " "
+
+    if (line_start+1 < max_lines):
       line_start += 1
       curr_line = lines[line_start]
+      
+      while not(";" in curr_line or "EMIT" in curr_line) and line_start+1 < max_lines:
+        out = out + curr_line.strip()
+        line_start += 1
+        curr_line = lines[line_start]
       
     return out
 
