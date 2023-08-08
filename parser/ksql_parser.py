@@ -120,7 +120,7 @@ class KSQLParser:
 
 
   def _extract_name(self, input: str, type: str) -> str:
-    linepart = input.split(" "+type+" ",2)[1]
+    linepart = input.split(" "+type+" ",2)[1].split(" ")[0]
     linepart = linepart.split("(")[0].strip()
     return linepart
 
