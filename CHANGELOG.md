@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v1.3 [08-Aug-2023]
+### Fixed
+- Fixed a bug when parsing `JOIN` statements where the table/stream had multiple spaces
+ending up in an empty table/stream name.
+
 ## v1.2 [08-Aug-2023]
 ### Fixed
 - Fixed a bug when parsing `CREATE TABLE/STREAM WITH` statements. The term `with` was 
