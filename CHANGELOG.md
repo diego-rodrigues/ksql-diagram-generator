@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## v1.1 [08-Aug-2023]
+## v1.2 [08-Aug-2023]
 ### Fixed
 - Fixed a bug when parsing `CREATE TABLE/STREAM WITH` statements. The term `with` was 
 being added as part of the table/stream name.
