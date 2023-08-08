@@ -131,15 +131,15 @@ class KSQLParser:
 
 
   def _extract_topic(self, input: str) -> str:
-    linepart = input.strip().split("\'")[1]
+    linepart = input.strip().split("\'")[1].strip()
     return linepart
 
 
   def _extract_from_keyword(self, input:str, keyword:str, with_alias:bool = True) -> str:
     if with_alias:
-      linepart = input.strip().split(keyword)[1].split(" ")[0]
+      linepart = input.strip().split(keyword)[1].strip().split(" ")[0]
     else:
-      linepart = input.strip().split(keyword)[1]
+      linepart = input.strip().split(keyword)[1].strip()
     return linepart
 
 
