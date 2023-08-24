@@ -38,7 +38,7 @@ class KSQLParser:
       curr_line = lines[line_start]
       
       while not(";" in curr_line or "EMIT" in curr_line) and line_start+1 < max_lines:
-        out = out + curr_line.strip()
+        out = out + " " + curr_line.strip()
         line_start += 1
         curr_line = lines[line_start]
       
@@ -52,6 +52,10 @@ class KSQLParser:
 
     for line in lines:
       lowerline = line.lower().strip()
+
+      # ignoring commented lines
+      if lowerline.startswith("--"):
+        continue
 
       # ignoring INSERT statements
       if re.search("insert into", lowerline) is not None:

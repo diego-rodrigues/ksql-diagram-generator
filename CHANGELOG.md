@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v1.4 [24-Aug-2023]
+### Fixed
+- Fixed a bug when parsing `PARTITION BY` statements where the `STRUCT` token was in a different line 
+without blank spaces.
+- Commented lines (starting with double dashes --) are ignored.
+
 ## v1.3 [08-Aug-2023]
 ### Fixed
 - Fixed a bug when parsing `JOIN` statements where the table/stream had multiple spaces
