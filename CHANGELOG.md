@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v1.4 [18-Oct-2023]
+### Added
+- SET lines (starting with double dashes keyword `set`) are ignored.
+
 ## v1.4 [24-Aug-2023]
 ### Fixed
 - Fixed a bug when parsing `PARTITION BY` statements where the `STRUCT` token was in a different line 
