@@ -22,7 +22,7 @@ graph_attr = {
   "ranksep": "2",
   "nodesep": "1",
 }
-    
+
 
 class KSQLParser:
   def __init__(self):
@@ -36,12 +36,12 @@ class KSQLParser:
     if (line_start+1 < max_lines):
       line_start += 1
       curr_line = lines[line_start]
-      
+
       while not(";" in curr_line or "EMIT" in curr_line) and line_start+1 < max_lines:
         out = out + " " + curr_line.strip()
         line_start += 1
         curr_line = lines[line_start]
-      
+
     return out
 
   def _parseStatement(self, input: str) -> KSQLItem:
@@ -51,10 +51,14 @@ class KSQLParser:
     line_no = 0
 
     for line in lines:
-      lowerline = line.lower().strip()
+      lowerline = line.lower() \
+        .strip() \
+        .replace("`", "") \
+        .replace(" if not exists", "") \
+        .replace(" or replace", "")
 
-      # ignoring commented lines
-      if lowerline.startswith("--"):
+      # ignoring commented lines or SET lines
+      if lowerline.startswith("--") or lowerline.startswith("set "):
         continue
 
       # ignoring INSERT statements
@@ -64,24 +68,24 @@ class KSQLParser:
       elif re.search("create", lowerline) is not None \
         and re.search(" stream ", lowerline) is not None:
         item = KSQLStream(self._extract_name(lowerline, "stream"))
-      
+
       elif re.search("create", lowerline) is not None \
         and re.search(" table ", lowerline) is not None:
         item = KSQLTable(self._extract_name(lowerline, "table"))
-      
+
       elif (re.search(" key", lowerline) is not None) \
         and (re.search("key_format", lowerline) is None):
         item.withKey(self._extract_key(lowerline))
-      
+
       elif re.search("^group by", lowerline) is not None:
         # treat the case where multiple keys are in the group by clause
         multiline = self._join_multilines(line_no, lines)
         item.withKey(self._extract_from_keyword(multiline.lower(), "group by ", False))
-      
+
       elif re.search("^partition by", lowerline) is not None:
         multiline = self._join_multilines(line_no, lines)
         item.withKey(self._extract_from_keyword(multiline.lower(), "partition by ", False))
-      
+
       elif re.search("kafka_topic", lowerline) is not None:
         item.withTopic(self._extract_topic(lowerline))
 
@@ -97,14 +101,14 @@ class KSQLParser:
         item.withKey(self.get_item(item.origin).key)
 
       line_no += 1
-      
+
     return item
 
 
   def parseStatements(self, input: str):
     for statement in input.strip().split(";"):
       item = self._parseStatement(statement)
-      
+
       if item != None:
         self.orderItems.append(item)
         self.items[item.name] = item
@@ -113,7 +117,7 @@ class KSQLParser:
   def get_item(self, key: str):
     if key in self.items:
       return self.items[key]
-    
+
     return None
 
 
@@ -156,16 +160,16 @@ class KSQLParser:
     while len(input) > max_size * fact:
       out = out + "\n" + input[(fact)*max_size : (fact+1)*max_size]
       fact += 1
-      
+
     return out
-  
+
   def draw_diagram(self, input_file:str, diagram_name:str, output_name:str):
 
     f = open(input_file, "r")
     inputs = f.read()
 
     self.parseStatements(inputs)
-    
+
     items = self.items
     orderItems = self.orderItems
 
@@ -177,7 +181,7 @@ class KSQLParser:
         # tables
         if isinstance(item, KSQLTable):
           print(item)
-        
+
           if (item.key == ""):
             draw_objects[item.name] = Node(label=self.multilines(item.name), height="0.6", \
                                       fixedsize="false", labelloc="c", shape="rectangle", \
@@ -186,7 +190,7 @@ class KSQLParser:
             draw_objects[item.name] = Node(label=self.multilines(item.name), xlabel=self.multilines(item.key,30), height="0.6", \
                                       fixedsize="false", labelloc="c", shape="rectangle", \
                                       color="black", style="filled", fillcolor="peachpuff")
-            
+
         # streams
         elif isinstance(item, KSQLStream):
           print(item)
@@ -197,7 +201,7 @@ class KSQLParser:
 
         # arrows
         if item.origin != "":
-            
+
           if "_rk" in item.name:
             draw_objects[item.origin] >> Edge(color="purple4", minlen="1", xlabel="RK") >> draw_objects[item.name]
           else:
@@ -206,12 +210,12 @@ class KSQLParser:
 
         # table-stream equivalents
         if item.topic in topic_mappings:
-            
+
           for item2 in topic_mappings[item.topic]:
             draw_objects[item2] >> Edge(color="blue", minlen="1", style="dashed", arrowtail="none", arrowhead="none") >> draw_objects[item.name]
-            
+
           topic_mappings[item.topic].append(item.name)
-            
+
         else:
           topic_mappings[item.topic] = [item.name]
 
@@ -222,4 +226,3 @@ class KSQLParser:
             joined = joined_tuple[0]
             jointype = joined_tuple[1]
             draw_objects[joined] >> Edge(color="firebrick", style="dashed", xlabel=jointype, minlen="1") >> draw_objects[item.name]
-        
